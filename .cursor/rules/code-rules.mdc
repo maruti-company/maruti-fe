@@ -1,0 +1,13 @@
+---
+alwaysApply: true
+---
+- Always do npm run format on any file you edit.
+- Always update the README if your changes affect setup, usage, API contracts, or anything relevant to users/contributors.
+- Use global constants for:
+  - external/internal API routes  
+  - hardcoded numbers (timeouts, limits, etc.)
+  - error messages and success messages  
+- Always use antd as the primary css components framework
+- Always use redux toolkit for global state management and local useStates for managing component level states
+- Always do error handling wherever required with optional chaining, try-catch etc
+- Please make sure each and every UI component is responsive
