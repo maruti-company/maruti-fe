@@ -87,6 +87,28 @@ const Header = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
           subtitle: 'Manage quotations and pricing information',
         };
       default:
+        // Handle quotation sub-routes
+        if (path.startsWith('/dashboard/quotations/add')) {
+          return {
+            title: 'Add Quotation',
+            icon: <FileTextOutlined />,
+            subtitle: 'Create a new quotation',
+          };
+        }
+        if (path.startsWith('/dashboard/quotations/edit/')) {
+          return {
+            title: 'Edit Quotation',
+            icon: <FileTextOutlined />,
+            subtitle: 'Modify quotation details',
+          };
+        }
+        if (path.startsWith('/dashboard/quotations/view/')) {
+          return {
+            title: 'View Quotation',
+            icon: <FileTextOutlined />,
+            subtitle: 'View quotation details',
+          };
+        }
         return {
           title: 'Dashboard',
           icon: <UserOutlined />,

@@ -304,6 +304,7 @@ const Customers = () => {
       name: customer.name,
       mobile_no: customer.mobile_no,
       address: customer.address,
+      gst_number: customer.gst_number,
       reference_id: customer.reference_id,
     });
   };
@@ -339,6 +340,10 @@ const Customers = () => {
         address:
           values.address && values.address.trim()
             ? values.address.trim()
+            : null,
+        gst_number:
+          values.gst_number && values.gst_number.trim()
+            ? values.gst_number.trim()
             : null,
         reference_id: values.reference_id || null,
       };
@@ -397,6 +402,12 @@ const Customers = () => {
       dataIndex: 'address',
       key: 'address',
       render: address => address || 'N/A',
+    },
+    {
+      title: 'GST No.',
+      dataIndex: 'gst_number',
+      key: 'gst_number',
+      render: gstNumber => gstNumber || 'N/A',
     },
     {
       title: 'Reference',
@@ -562,6 +573,10 @@ const Customers = () => {
 
             <Form.Item label="Address" name="address">
               <Input.TextArea placeholder="Enter address (optional)" rows={3} />
+            </Form.Item>
+
+            <Form.Item label="GST No." name="gst_number">
+              <Input placeholder="Enter GST number (optional)" />
             </Form.Item>
 
             <Form.Item label="Reference" name="reference_id">
