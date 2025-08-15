@@ -11,6 +11,7 @@ import store from './store';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import PublicQuotationPDF from './pages/PublicQuotationPDF';
 import './App.css';
 
 function App() {
@@ -21,6 +22,10 @@ function App() {
           <div className="App">
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route
+                path="/public/quotations/:id"
+                element={<PublicQuotationPDF />}
+              />
               <Route
                 path="/dashboard/*"
                 element={

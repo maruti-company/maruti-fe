@@ -11,6 +11,9 @@ import Customers from './Customers';
 import Products from './Products';
 import Locations from './Locations';
 import Quotations from './Quotations';
+import AddQuotation from './AddQuotation';
+import EditQuotation from './EditQuotation';
+import ViewQuotation from './ViewQuotation';
 import './Dashboard.css';
 
 const { Content } = Layout;
@@ -100,6 +103,30 @@ const Dashboard = () => {
               element={
                 <RoleProtectedRoute allowedRoles={[1, 2]}>
                   <Quotations />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/quotations/add"
+              element={
+                <RoleProtectedRoute allowedRoles={[1, 2]}>
+                  <AddQuotation />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/quotations/edit/:id"
+              element={
+                <RoleProtectedRoute allowedRoles={[1, 2]}>
+                  <EditQuotation />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/quotations/view/:id"
+              element={
+                <RoleProtectedRoute allowedRoles={[1, 2]}>
+                  <ViewQuotation />
                 </RoleProtectedRoute>
               }
             />
