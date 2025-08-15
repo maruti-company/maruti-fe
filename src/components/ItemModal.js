@@ -537,7 +537,7 @@ const ItemModal = ({
               >
                 <Select placeholder="Select discount type">
                   <Option value="PERCENTAGE">Percentage</Option>
-                  <Option value="FIXED">Fixed Amount</Option>
+                  <Option value="PER_PIECE">Per Piece</Option>
                 </Select>
               </Form.Item>
             </Col>
