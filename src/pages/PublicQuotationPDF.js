@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { Card, Spin, Alert, Button, Typography } from 'antd';
-import { FilePdfOutlined } from '@ant-design/icons';
+import { Card, Spin, Alert, Button, Typography, Space } from 'antd';
+import {
+  FilePdfOutlined,
+  DownloadOutlined,
+  EyeOutlined,
+} from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { quotationService } from '../services/quotationService';
 import { ASSET_BASE_URL } from '../constants';
@@ -17,6 +21,31 @@ const PublicQuotationPDF = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pdfUrl, setPdfUrl] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect if user is on mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const mobileKeywords = [
+        'android',
+        'iphone',
+        'ipad',
+        'ipod',
+        'blackberry',
+        'windows phone',
+      ];
+      const isMobileDevice = mobileKeywords.some(keyword =>
+        userAgent.includes(keyword)
+      );
+      const isSmallScreen = window.innerWidth <= 768;
+      setIsMobile(isMobileDevice || isSmallScreen);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const fetchPublic = async () => {
     try {
@@ -82,27 +111,123 @@ const PublicQuotationPDF = () => {
 
         {!loading && !error && pdfUrl && (
           <div style={{ marginTop: 16 }}>
-            <object
-              data={pdfUrl}
-              type="application/pdf"
-              width="100%"
-              height="800px"
-            >
-              <div style={{ textAlign: 'center', padding: 16 }}>
-                <Text>PDF preview is not supported by your browser.</Text>
-                <div style={{ marginTop: 8 }}>
+            {isMobile ? (
+              // Mobile-friendly PDF viewing
+              <div style={{ textAlign: 'center', padding: 24 }}>
+                <FilePdfOutlined
+                  style={{ fontSize: 48, color: '#1890ff', marginBottom: 16 }}
+                />
+                <Title level={4} style={{ marginBottom: 8 }}>
+                  Quotation PDF Ready
+                </Title>
+                <Text
+                  type="secondary"
+                  style={{ display: 'block', marginBottom: 24 }}
+                >
+                  Tap below to view or download the PDF file
+                </Text>
+                <Space
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: '100%' }}
+                >
                   <Button
                     type="primary"
-                    icon={<FilePdfOutlined />}
+                    size="large"
+                    icon={<EyeOutlined />}
                     href={pdfUrl}
                     target="_blank"
+                    style={{ width: '100%', maxWidth: 300 }}
                   >
-                    Open PDF
+                    View PDF
                   </Button>
+                  <Button
+                    size="large"
+                    icon={<DownloadOutlined />}
+                    href={pdfUrl}
+                    download
+                    style={{ width: '100%', maxWidth: 300 }}
+                  >
+                    Download PDF
+                  </Button>
+                </Space>
+                <div style={{ marginTop: 16, fontSize: '12px', color: '#999' }}>
+                  <Text type="secondary">
+                    If the PDF doesn't open, try downloading it first
+                  </Text>
                 </div>
               </div>
-            </object>
-            {/* Print/Download options are available within the embedded PDF viewer toolbar */}
+            ) : (
+              // Desktop PDF embedding with fallback
+              <>
+                <div style={{ marginBottom: 16, textAlign: 'right' }}>
+                  <Space>
+                    <Button
+                      icon={<EyeOutlined />}
+                      href={pdfUrl}
+                      target="_blank"
+                    >
+                      Open in New Tab
+                    </Button>
+                    <Button icon={<DownloadOutlined />} href={pdfUrl} download>
+                      Download
+                    </Button>
+                  </Space>
+                </div>
+                <div
+                  style={{
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '6px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <object
+                    data={pdfUrl}
+                    type="application/pdf"
+                    width="100%"
+                    height="800px"
+                    style={{ display: 'block' }}
+                  >
+                    <div style={{ textAlign: 'center', padding: 40 }}>
+                      <FilePdfOutlined
+                        style={{
+                          fontSize: 48,
+                          color: '#1890ff',
+                          marginBottom: 16,
+                        }}
+                      />
+                      <Title level={4} style={{ marginBottom: 8 }}>
+                        PDF Preview Not Available
+                      </Title>
+                      <Text
+                        type="secondary"
+                        style={{ display: 'block', marginBottom: 24 }}
+                      >
+                        Your browser doesn't support PDF preview. Use the
+                        buttons below to view or download the file.
+                      </Text>
+                      <Space>
+                        <Button
+                          type="primary"
+                          icon={<EyeOutlined />}
+                          href={pdfUrl}
+                          target="_blank"
+                        >
+                          Open PDF
+                        </Button>
+                        <Button
+                          icon={<DownloadOutlined />}
+                          href={pdfUrl}
+                          download
+                        >
+                          Download PDF
+                        </Button>
+                      </Space>
+                    </div>
+                  </object>
+                </div>
+              </>
+            )}
           </div>
         )}
       </Card>
