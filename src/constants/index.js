@@ -55,7 +55,14 @@ export const API_ROUTES = {
       DELETE: '/v1/locations', // append /:id
       GET_BY_ID: '/v1/locations', // append /:id
     },
-    QUOTATIONS: '/v1/quotations',
+    QUOTATIONS: {
+      BASE: '/v1/quotations',
+      LIST: '/v1/quotations',
+      CREATE: '/v1/quotations',
+      UPDATE: '/v1/quotations', // append /:id (also /:id/shared-date)
+      DELETE: '/v1/quotations', // append /:id
+      GET_BY_ID: '/v1/quotations', // append /:id
+    },
   },
 };
 
@@ -92,6 +99,33 @@ export const USER_ROLES = {
 export const USER_ROLE_LABELS = {
   [USER_ROLES.ADMIN]: 'Admin',
   [USER_ROLES.EMPLOYEE]: 'Employee',
+};
+
+// Public assets base URL (S3 or CDN)
+export const ASSET_BASE_URL = process.env.REACT_APP_S3_STORAGE_BUCKET_URL || '';
+
+// Price Type Constants
+export const PRICE_TYPES = {
+  INCLUSIVE_TAX: 'Inclusive Tax',
+  EXCLUSIVE_TAX: 'Exclusive Tax',
+};
+
+export const PRICE_TYPE_OPTIONS = [
+  { value: 'Inclusive Tax', label: 'Inclusive Tax' },
+  { value: 'Exclusive Tax', label: 'Exclusive Tax' },
+];
+
+// File Upload Constants
+export const FILE_UPLOAD = {
+  MAX_SIZE: 5 * 1024 * 1024, // 5MB
+  ALLOWED_IMAGE_TYPES: [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+  ],
+  ALLOWED_IMAGE_EXTENSIONS: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
 };
 
 // Error Messages
@@ -146,4 +180,7 @@ export const SUCCESS_MESSAGES = {
   LOCATION_CREATED: 'Location created successfully.',
   LOCATION_UPDATED: 'Location updated successfully.',
   LOCATION_DELETED: 'Location deleted successfully.',
+  QUOTATION_CREATED: 'Quotation created successfully.',
+  QUOTATION_UPDATED: 'Quotation updated successfully.',
+  QUOTATION_DELETED: 'Quotation deleted successfully.',
 };

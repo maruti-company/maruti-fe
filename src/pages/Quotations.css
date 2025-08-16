@@ -1,0 +1,37 @@
+.quotations-header {
+  margin-bottom: 16px;
+}
+
+/* Table responsiveness */
+.ant-table-wrapper {
+  overflow-x: auto;
+}
+
+.ant-table {
+  min-width: 800px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .quotations-header .ant-row {
+    flex-direction: column;
+  }
+
+  .quotations-header .ant-col {
+    margin-bottom: 8px;
+  }
+
+  .ant-table {
+    min-width: 700px;
+  }
+}
+
+@media (max-width: 576px) {
+  .quotations-header {
+    margin-bottom: 12px;
+  }
+
+  .ant-table {
+    min-width: 600px;
+  }
+}
