@@ -22,6 +22,7 @@ import {
   ASSET_BASE_URL,
 } from '../constants';
 import { UploadOutlined } from '@ant-design/icons';
+import CameraUpload from './CameraUpload';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -612,30 +613,19 @@ const ItemModal = ({
           <Row gutter={16} style={{ marginTop: 16 }}>
             <Col span={24}>
               <Form.Item label="Product Image">
-                <Upload
-                  listType="picture-card"
+                <CameraUpload
                   fileList={fileList}
                   onChange={handleImageUpload}
                   beforeUpload={handleImageBeforeUpload}
                   onPreview={handlePreview}
-                  showUploadList={{
-                    showPreviewIcon: true,
-                    showRemoveIcon: true,
-                  }}
                   maxCount={1}
                   accept={FILE_UPLOAD.ALLOWED_IMAGE_EXTENSIONS.join(',')}
-                >
-                  {fileList.length === 0 ? (
-                    <div>
-                      <UploadOutlined />
-                      <div style={{ marginTop: 8 }}>Upload Image</div>
-                    </div>
-                  ) : null}
-                </Upload>
+                />
                 <div
                   style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}
                 >
-                  Only image files are allowed. Maximum size: 5MB
+                  Only image files are allowed. Maximum size: 5MB. You can
+                  upload a file or take a photo with your camera.
                 </div>
               </Form.Item>
             </Col>

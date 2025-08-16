@@ -23,7 +23,7 @@ code {
 }
 
 .dashboard-header {
-  .ant-space-gap-row-large{
+  .ant-space-gap-row-large {
     row-gap: 0px;
   }
 }
@@ -34,7 +34,8 @@ code {
     .ant-picker-header {
       position: absolute;
       right: 0;
-      .ant-picker-header-prev-btn, .ant-picker-header-view {
+      .ant-picker-header-prev-btn,
+      .ant-picker-header-view {
         visibility: hidden;
       }
     }
@@ -44,10 +45,11 @@ code {
     }
 
     @media (min-width: 768px) {
-      width: 280px!important;
+      width: 280px !important;
       .ant-picker-header {
         position: relative;
-        .ant-picker-header-prev-btn, .ant-picker-header-view {
+        .ant-picker-header-prev-btn,
+        .ant-picker-header-view {
           visibility: initial;
         }
       }
@@ -59,12 +61,11 @@ code {
   }
 }
 
-
 .ant-table-cell .ant-space {
   flex-direction: row !important;
 }
 
 .ant-table {
   max-width: 100%;
-  min-width: 0
+  min-width: 0;
 }
