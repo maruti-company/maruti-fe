@@ -21,6 +21,16 @@
     margin-bottom: 8px;
   }
 
+  /* Make date range picker responsive */
+  .ant-picker-range {
+    width: 100% !important;
+  }
+
+  /* Stack date range picker inputs vertically on very small screens */
+  .ant-picker-range .ant-picker-input {
+    width: 100%;
+  }
+
   .ant-table {
     min-width: 700px;
   }
@@ -31,7 +41,33 @@
     margin-bottom: 12px;
   }
 
+  /* Make date range picker more compact on mobile */
+  .ant-picker-range {
+    font-size: 14px;
+  }
+
+  .ant-picker-range .ant-picker-input input {
+    font-size: 14px;
+  }
+
+  /* Reduce padding in date picker inputs */
+  .ant-picker-range .ant-picker-input {
+    padding: 4px 8px;
+  }
+
   .ant-table {
     min-width: 600px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* For very small screens, make the date range picker even more compact */
+  .ant-picker-range .ant-picker-input {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .ant-picker-range .ant-picker-range-separator {
+    padding: 0 4px;
   }
 }
