@@ -261,16 +261,30 @@ const Quotations = () => {
   const handleDeleteQuotation = async id => {
     try {
       const response = await quotationService.deleteQuotation(id);
-      if (response.success) {
+      const success = response.data?.success || response.success;
+
+      if (success) {
         api.success({
           message: 'Success',
           description: SUCCESS_MESSAGES.QUOTATION_DELETED,
         });
-        // Refresh the list
+
+        // Refresh the list - check if we need to go to previous page
         const startDate = dateRange[0] ? dateRange[0].format('YYYY-MM-DD') : '';
         const endDate = dateRange[1] ? dateRange[1].format('YYYY-MM-DD') : '';
+
+        // If we're deleting the last item on a page (and not on page 1), go to previous page
+        const currentPageStartIndex =
+          (pagination.current - 1) * pagination.pageSize;
+        const isLastItemOnPage = quotations.length === 1;
+        const shouldGoToPreviousPage =
+          isLastItemOnPage && pagination.current > 1;
+        const targetPage = shouldGoToPreviousPage
+          ? pagination.current - 1
+          : pagination.current;
+
         fetchQuotations(
-          pagination.current,
+          targetPage,
           pagination.pageSize,
           startDate,
           endDate,
