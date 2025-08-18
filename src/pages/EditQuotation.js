@@ -272,7 +272,7 @@ const EditQuotation = () => {
 
       // Fetch the actual file from S3
       const response = await fetch(imageUrl, {
-        headers: { "Cache-Control": 'no-cache' },
+        headers: { 'Cache-Control': 'no-cache' },
       });
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.statusText}`);
