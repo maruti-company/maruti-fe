@@ -271,7 +271,9 @@ const EditQuotation = () => {
       console.log(`Fetching image from S3: ${imageUrl}`);
 
       // Fetch the actual file from S3
-      const response = await fetch(imageUrl);
+      const response = await fetch(imageUrl, {
+        headers: { "Cache-Control": 'no-cache' },
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.statusText}`);
       }
@@ -293,7 +295,7 @@ const EditQuotation = () => {
       return file;
     } catch (error) {
       console.error('Error fetching image from S3:', error);
-      return null;
+      throw new Error(`Failed to fetch image from S3: ${error.message}`);
     }
   };
 
