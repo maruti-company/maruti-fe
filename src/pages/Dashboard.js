@@ -14,6 +14,7 @@ import Quotations from './Quotations';
 import AddQuotation from './AddQuotation';
 import EditQuotation from './EditQuotation';
 import ViewQuotation from './ViewQuotation';
+import ChangePassword from './ChangePassword';
 import './Dashboard.css';
 
 const { Content } = Layout;
@@ -127,6 +128,16 @@ const Dashboard = () => {
               element={
                 <RoleProtectedRoute allowedRoles={[1, 2]}>
                   <ViewQuotation />
+                </RoleProtectedRoute>
+              }
+            />
+
+            {/* Admin only routes */}
+            <Route
+              path="/change-password"
+              element={
+                <RoleProtectedRoute allowedRoles={[1]}>
+                  <ChangePassword />
                 </RoleProtectedRoute>
               }
             />

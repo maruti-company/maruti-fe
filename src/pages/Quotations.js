@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { quotationService } from '../services/quotationService';
 import { customerService } from '../services/customerService';
+import { referenceService } from '../services/referenceService';
 import {
   SUCCESS_MESSAGES,
   getErrorMessage,
@@ -66,6 +67,19 @@ const Quotations = () => {
   const [customerSearchTerm, setCustomerSearchTerm] = useState('');
   const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
 
+  // Reference filtering states
+  const [selectedReference, setSelectedReference] = useState(undefined);
+  const [references, setReferences] = useState([]);
+  const [referenceLoading, setReferenceLoading] = useState(false);
+  const [hasMoreReferences, setHasMoreReferences] = useState(true);
+  const [referenceCurrentPage, setReferenceCurrentPage] = useState(1);
+  const [initialReferencesLoaded, setInitialReferencesLoaded] = useState(false);
+
+  // Debounce timer for reference search
+  const [referenceSearchTerm, setReferenceSearchTerm] = useState('');
+  const [referenceSearchDebounceTimer, setReferenceSearchDebounceTimer] =
+    useState(null);
+
   // Fetch quotations
   const fetchQuotations = useCallback(
     async (
@@ -73,7 +87,8 @@ const Quotations = () => {
       limit = 20,
       start_date = '',
       end_date = '',
-      customer_id = ''
+      customer_id = '',
+      reference_id = ''
     ) => {
       try {
         setLoading(true);
@@ -85,6 +100,7 @@ const Quotations = () => {
         if (start_date) params.start_date = start_date;
         if (end_date) params.end_date = end_date;
         if (customer_id) params.customer_id = customer_id;
+        if (reference_id) params.reference_id = reference_id;
 
         const response = await quotationService.getQuotations(params);
 
@@ -157,6 +173,51 @@ const Quotations = () => {
     []
   );
 
+  // Fetch references for filter dropdown with infinite scroll
+  const fetchReferences = useCallback(
+    async (page = 1, search = '', resetList = false) => {
+      try {
+        setReferenceLoading(true);
+
+        const params = {
+          page,
+          limit: 10, // Smaller limit for dropdown
+        };
+
+        if (search) {
+          params.search = search;
+        }
+
+        const response = await referenceService.getReferences(params);
+
+        if (response.success) {
+          const newReferences = response.data.references || [];
+
+          if (resetList) {
+            setReferences(newReferences);
+            setReferenceCurrentPage(1);
+          } else {
+            setReferences(prev => [...prev, ...newReferences]);
+          }
+
+          setHasMoreReferences(
+            newReferences.length === 10 &&
+              response.data.pagination?.hasNext !== false
+          );
+
+          if (!resetList) {
+            setReferenceCurrentPage(page);
+          }
+        }
+      } catch (error) {
+        // Error fetching references - silently handle
+      } finally {
+        setReferenceLoading(false);
+      }
+    },
+    []
+  );
+
   // Preload initial customers when dropdown opens
   const preloadInitialCustomers = useCallback(async () => {
     if (initialCustomersLoaded) return;
@@ -179,6 +240,28 @@ const Quotations = () => {
     initialCustomersLoaded,
   ]);
 
+  // Preload initial references when dropdown opens
+  const preloadInitialReferences = useCallback(async () => {
+    if (initialReferencesLoaded) return;
+
+    setReferences([]);
+    setReferenceCurrentPage(1);
+    setHasMoreReferences(true);
+
+    // Load first 5 pages (50 references total with limit 10)
+    for (let page = 1; page <= 5; page++) {
+      await fetchReferences(page, referenceSearchTerm, page === 1);
+      if (!hasMoreReferences) break;
+    }
+
+    setInitialReferencesLoaded(true);
+  }, [
+    fetchReferences,
+    referenceSearchTerm,
+    hasMoreReferences,
+    initialReferencesLoaded,
+  ]);
+
   // Handle customer dropdown scroll
   const handleCustomerDropdownScroll = e => {
     const { target } = e;
@@ -188,6 +271,18 @@ const Quotations = () => {
       !customerLoading
     ) {
       fetchCustomers(customerCurrentPage + 1, customerSearchTerm);
+    }
+  };
+
+  // Handle reference dropdown scroll
+  const handleReferenceDropdownScroll = e => {
+    const { target } = e;
+    if (
+      target.scrollTop + target.offsetHeight === target.scrollHeight &&
+      hasMoreReferences &&
+      !referenceLoading
+    ) {
+      fetchReferences(referenceCurrentPage + 1, referenceSearchTerm);
     }
   };
 
@@ -210,6 +305,25 @@ const Quotations = () => {
     setSearchDebounceTimer(timer);
   };
 
+  // Handle reference search with debouncing
+  const handleReferencesSearch = value => {
+    setReferenceSearchTerm(value);
+
+    if (referenceSearchDebounceTimer) {
+      clearTimeout(referenceSearchDebounceTimer);
+    }
+
+    const timer = setTimeout(() => {
+      setReferences([]);
+      setReferenceCurrentPage(1);
+      setHasMoreReferences(true);
+      setInitialReferencesLoaded(false);
+      fetchReferences(1, value, true);
+    }, TIMEOUTS.DEBOUNCE);
+
+    setReferenceSearchDebounceTimer(timer);
+  };
+
   // Handle customer filter change
   const handleCustomerChange = value => {
     setSelectedCustomer(value || undefined);
@@ -225,7 +339,39 @@ const Quotations = () => {
     // Re-fetch quotations with new filter
     const startDate = dateRange[0] ? dateRange[0].format('YYYY-MM-DD') : '';
     const endDate = dateRange[1] ? dateRange[1].format('YYYY-MM-DD') : '';
-    fetchQuotations(1, pagination.pageSize, startDate, endDate, value || '');
+    fetchQuotations(
+      1,
+      pagination.pageSize,
+      startDate,
+      endDate,
+      value || '',
+      selectedReference
+    );
+  };
+
+  // Handle reference filter change
+  const handleReferenceChange = value => {
+    setSelectedReference(value || undefined);
+
+    if (!value) {
+      setReferenceSearchTerm('');
+      setReferences([]);
+      setReferenceCurrentPage(1);
+      setHasMoreReferences(true);
+      setInitialReferencesLoaded(false);
+    }
+
+    // Re-fetch quotations with new filter
+    const startDate = dateRange[0] ? dateRange[0].format('YYYY-MM-DD') : '';
+    const endDate = dateRange[1] ? dateRange[1].format('YYYY-MM-DD') : '';
+    fetchQuotations(
+      1,
+      pagination.pageSize,
+      startDate,
+      endDate,
+      selectedCustomer,
+      value || ''
+    );
   };
 
   // Handle date range change
@@ -240,7 +386,8 @@ const Quotations = () => {
       pagination.pageSize,
       startDate,
       endDate,
-      selectedCustomer
+      selectedCustomer,
+      selectedReference
     );
   };
 
@@ -253,7 +400,8 @@ const Quotations = () => {
       pagination.pageSize,
       startDate,
       endDate,
-      selectedCustomer
+      selectedCustomer,
+      selectedReference
     );
   };
 
@@ -288,7 +436,8 @@ const Quotations = () => {
           pagination.pageSize,
           startDate,
           endDate,
-          selectedCustomer
+          selectedCustomer,
+          selectedReference
         );
       }
     } catch (error) {
@@ -383,8 +532,11 @@ const Quotations = () => {
       if (searchDebounceTimer) {
         clearTimeout(searchDebounceTimer);
       }
+      if (referenceSearchDebounceTimer) {
+        clearTimeout(referenceSearchDebounceTimer);
+      }
     };
-  }, [searchDebounceTimer]);
+  }, [searchDebounceTimer, referenceSearchDebounceTimer]);
 
   return (
     <div style={{ padding: '24px' }}>
@@ -405,7 +557,7 @@ const Quotations = () => {
             </Col>
             <Col xs={24} sm={24} md={12} lg={16}>
               <Row gutter={[16, 16]} justify="end">
-                <Col xs={24} sm={12} md={12} lg={8}>
+                <Col xs={24} sm={12} md={12} lg={6}>
                   <RangePicker
                     placeholder={['Start Date', 'End Date']}
                     value={dateRange}
@@ -413,7 +565,7 @@ const Quotations = () => {
                     style={{ width: '100%' }}
                   />
                 </Col>
-                <Col xs={24} sm={12} md={12} lg={8}>
+                <Col xs={24} sm={12} md={12} lg={6}>
                   <Select
                     placeholder="Search or select customer"
                     value={selectedCustomer}
@@ -434,6 +586,32 @@ const Quotations = () => {
                     {customers.map(customer => (
                       <Option key={customer.id} value={customer.id}>
                         {customer.name} - {customer.mobile_no}
+                      </Option>
+                    ))}
+                  </Select>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={6}>
+                  <Select
+                    placeholder="Search or select reference"
+                    value={selectedReference}
+                    onChange={handleReferenceChange}
+                    allowClear
+                    showSearch
+                    filterOption={false}
+                    onSearch={handleReferencesSearch}
+                    onDropdownVisibleChange={visible => {
+                      if (visible) {
+                        preloadInitialReferences();
+                      }
+                    }}
+                    onPopupScroll={handleReferenceDropdownScroll}
+                    loading={referenceLoading}
+                    style={{ width: '100%' }}
+                  >
+                    {references.map(reference => (
+                      <Option key={reference.id} value={reference.id}>
+                        {reference.name}
+                        {reference.mobile_no ? ` - ${reference.mobile_no}` : ''}
                       </Option>
                     ))}
                   </Select>

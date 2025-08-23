@@ -92,6 +92,12 @@ const ViewQuotation = () => {
   // Items table columns
   const itemColumns = [
     {
+      title: 'Sr. no.',
+      key: 'sr_no',
+      render: (_, record, index) => index + 1,
+      width: 80,
+    },
+    {
       title: 'Product',
       dataIndex: 'product_name',
       key: 'product_name',
@@ -132,7 +138,16 @@ const ViewQuotation = () => {
       title: 'Discount',
       dataIndex: 'discount',
       key: 'discount',
-      render: discount => `${discount}%`,
+      render: discount => {
+        if (
+          discount === undefined ||
+          discount === null ||
+          Number(discount) === 0
+        ) {
+          return '-';
+        }
+        return `${discount}%`;
+      },
     },
     {
       title: 'Discount Type',
