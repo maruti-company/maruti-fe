@@ -445,7 +445,16 @@ const EditQuotation = () => {
       title: 'Discount',
       dataIndex: 'discount',
       key: 'discount',
-      render: discount => `${discount}%`,
+      render: discount => {
+        if (
+          discount === undefined ||
+          discount === null ||
+          Number(discount) === 0
+        ) {
+          return '-';
+        }
+        return `${discount}%`;
+      },
     },
     {
       title: 'Discount Type',

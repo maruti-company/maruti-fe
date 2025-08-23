@@ -284,7 +284,9 @@ const ItemModal = ({
             ? undefined
             : Number(editingItem.rate),
         discount:
-          editingItem.discount === undefined || editingItem.discount === null
+          editingItem.discount === undefined ||
+          editingItem.discount === null ||
+          Number(editingItem.discount) === 0
             ? undefined
             : Number(editingItem.discount),
         discount_type: editingItem.discount_type,
