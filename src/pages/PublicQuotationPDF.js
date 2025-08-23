@@ -160,20 +160,6 @@ const PublicQuotationPDF = () => {
             ) : (
               // Desktop PDF embedding with fallback
               <>
-                <div style={{ marginBottom: 16, textAlign: 'right' }}>
-                  <Space>
-                    <Button
-                      icon={<EyeOutlined />}
-                      href={pdfUrl}
-                      target="_blank"
-                    >
-                      Open in New Tab
-                    </Button>
-                    <Button icon={<DownloadOutlined />} href={pdfUrl} download>
-                      Download
-                    </Button>
-                  </Space>
-                </div>
                 <div
                   style={{
                     border: '1px solid #d9d9d9',

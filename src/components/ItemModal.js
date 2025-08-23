@@ -509,6 +509,7 @@ const ItemModal = ({
               <Form.Item
                 label="Discount"
                 name="discount"
+                dependencies={['discount_type']}
                 rules={[
                   {
                     type: 'number',
@@ -516,6 +517,22 @@ const ItemModal = ({
                     max: 100,
                     message: 'Discount must be between 0-100%',
                   },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const discountType = getFieldValue('discount_type');
+                      if (
+                        discountType &&
+                        (value === undefined || value === null || value === '')
+                      ) {
+                        return Promise.reject(
+                          new Error(
+                            'Discount is required when discount type is selected'
+                          )
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
                 ]}
               >
                 <InputNumber
@@ -532,11 +549,27 @@ const ItemModal = ({
               <Form.Item
                 label="Discount Type"
                 name="discount_type"
+                dependencies={['discount']}
                 rules={[
-                  { required: true, message: 'Please select discount type' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const discount = getFieldValue('discount');
+                      if (
+                        discount &&
+                        (value === undefined || value === null || value === '')
+                      ) {
+                        return Promise.reject(
+                          new Error(
+                            'Discount type is required when discount is entered'
+                          )
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
                 ]}
               >
-                <Select placeholder="Select discount type">
+                <Select placeholder="Select discount type" allowClear>
                   <Option value="PERCENTAGE">Percentage</Option>
                   <Option value="PER_PIECE">Per Piece</Option>
                 </Select>

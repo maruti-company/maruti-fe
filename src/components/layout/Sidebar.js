@@ -114,6 +114,11 @@ const Sidebar = ({ collapsed, mobileOpen, setMobileOpen }) => {
         onClick={handleMenuClick}
         className="sidebar-menu"
       />
+      <div className="sidebar-footer">
+        <p className="developer-text">
+          {collapsed ? 'SS' : 'Developed by Sunny Softwares'}
+        </p>
+      </div>
     </Sider>
   );
 };

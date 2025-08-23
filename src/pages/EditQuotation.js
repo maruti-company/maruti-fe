@@ -388,6 +388,12 @@ const EditQuotation = () => {
   // Items table columns
   const itemColumns = [
     {
+      title: 'Sr. no.',
+      key: 'sr_no',
+      render: (_, record, index) => index + 1,
+      width: 80,
+    },
+    {
       title: 'Product',
       dataIndex: 'product_name',
       key: 'product_name',
