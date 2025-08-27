@@ -12,6 +12,7 @@ import {
   FileTextOutlined,
   ContactsOutlined,
   ShoppingOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 import { logoutUser } from '../../store/slices/authSlice';
 import './Header.css';
@@ -34,7 +35,23 @@ const Header = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
     }
   };
 
+  const handleChangePassword = () => {
+    navigate('/dashboard/change-password');
+  };
+
   const userMenuItems = [
+    // Show change password only for admin users
+    ...(user?.role === 1
+      ? [
+          {
+            key: 'change-password',
+            icon: <LockOutlined />,
+            label: 'Change Password',
+            onClick: handleChangePassword,
+          },
+        ]
+      : []),
+    // Show logout for all users
     {
       key: 'logout',
       icon: <LogoutOutlined />,

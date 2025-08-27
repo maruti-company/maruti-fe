@@ -47,4 +47,13 @@ export const userService = {
     );
     return response.data;
   },
+
+  // Change password
+  changePassword: async passwordData => {
+    const response = await api.post(
+      API_ROUTES.INTERNAL.USERS.CHANGE_PASSWORD,
+      passwordData
+    );
+    return response.data;
+  },
 };

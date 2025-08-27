@@ -22,6 +22,7 @@ import {
   ASSET_BASE_URL,
 } from '../constants';
 import { UploadOutlined } from '@ant-design/icons';
+import CameraUpload from './CameraUpload';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -283,7 +284,9 @@ const ItemModal = ({
             ? undefined
             : Number(editingItem.rate),
         discount:
-          editingItem.discount === undefined || editingItem.discount === null
+          editingItem.discount === undefined ||
+          editingItem.discount === null ||
+          Number(editingItem.discount) === 0
             ? undefined
             : Number(editingItem.discount),
         discount_type: editingItem.discount_type,
@@ -508,6 +511,7 @@ const ItemModal = ({
               <Form.Item
                 label="Discount"
                 name="discount"
+                dependencies={['discount_type']}
                 rules={[
                   {
                     type: 'number',
@@ -515,6 +519,22 @@ const ItemModal = ({
                     max: 100,
                     message: 'Discount must be between 0-100%',
                   },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const discountType = getFieldValue('discount_type');
+                      if (
+                        discountType &&
+                        (value === undefined || value === null || value === '')
+                      ) {
+                        return Promise.reject(
+                          new Error(
+                            'Discount is required when discount type is selected'
+                          )
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
                 ]}
               >
                 <InputNumber
@@ -531,11 +551,27 @@ const ItemModal = ({
               <Form.Item
                 label="Discount Type"
                 name="discount_type"
+                dependencies={['discount']}
                 rules={[
-                  { required: true, message: 'Please select discount type' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const discount = getFieldValue('discount');
+                      if (
+                        discount &&
+                        (value === undefined || value === null || value === '')
+                      ) {
+                        return Promise.reject(
+                          new Error(
+                            'Discount type is required when discount is entered'
+                          )
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
                 ]}
               >
-                <Select placeholder="Select discount type">
+                <Select placeholder="Select discount type" allowClear>
                   <Option value="PERCENTAGE">Percentage</Option>
                   <Option value="PER_PIECE">Per Piece</Option>
                 </Select>
@@ -612,30 +648,19 @@ const ItemModal = ({
           <Row gutter={16} style={{ marginTop: 16 }}>
             <Col span={24}>
               <Form.Item label="Product Image">
-                <Upload
-                  listType="picture-card"
+                <CameraUpload
                   fileList={fileList}
                   onChange={handleImageUpload}
                   beforeUpload={handleImageBeforeUpload}
                   onPreview={handlePreview}
-                  showUploadList={{
-                    showPreviewIcon: true,
-                    showRemoveIcon: true,
-                  }}
                   maxCount={1}
                   accept={FILE_UPLOAD.ALLOWED_IMAGE_EXTENSIONS.join(',')}
-                >
-                  {fileList.length === 0 ? (
-                    <div>
-                      <UploadOutlined />
-                      <div style={{ marginTop: 8 }}>Upload Image</div>
-                    </div>
-                  ) : null}
-                </Upload>
+                />
                 <div
                   style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}
                 >
-                  Only image files are allowed. Maximum size: 5MB
+                  Only image files are allowed. Maximum size: 5MB. You can
+                  upload a file or take a photo with your camera.
                 </div>
               </Form.Item>
             </Col>

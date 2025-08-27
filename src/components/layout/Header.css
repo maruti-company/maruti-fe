@@ -101,10 +101,27 @@
   .dashboard-header {
     left: 0;
     padding: 0 16px;
+    height: 64px;
+    min-height: 64px;
   }
 
   .dashboard-header.collapsed {
     left: 0;
+  }
+
+  .header-right {
+    align-items: center;
+    height: 100%;
+  }
+
+  .header-right .ant-space {
+    align-items: center;
+  }
+
+  .user-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
   }
 
   .user-info {

@@ -20,6 +20,7 @@ export const API_ROUTES = {
       UPDATE: '/v1/users', // append /:id
       DELETE: '/v1/users', // append /:id
       GET_BY_ID: '/v1/users', // append /:id
+      CHANGE_PASSWORD: '/v1/users/change-password',
     },
     REFERENCES: {
       BASE: '/v1/references',
@@ -168,6 +169,7 @@ export const SUCCESS_MESSAGES = {
   USER_CREATED: 'User created successfully.',
   USER_UPDATED: 'User updated successfully.',
   USER_DELETED: 'User deleted successfully.',
+  PASSWORD_CHANGED: 'Password changed successfully.',
   REFERENCE_CREATED: 'Reference created successfully.',
   REFERENCE_UPDATED: 'Reference updated successfully.',
   REFERENCE_DELETED: 'Reference deleted successfully.',

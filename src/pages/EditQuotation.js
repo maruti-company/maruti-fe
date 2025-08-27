@@ -271,7 +271,9 @@ const EditQuotation = () => {
       console.log(`Fetching image from S3: ${imageUrl}`);
 
       // Fetch the actual file from S3
-      const response = await fetch(imageUrl);
+      const response = await fetch(imageUrl, {
+        headers: { 'Cache-Control': 'no-cache' },
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.statusText}`);
       }
@@ -293,7 +295,7 @@ const EditQuotation = () => {
       return file;
     } catch (error) {
       console.error('Error fetching image from S3:', error);
-      return null;
+      throw new Error(`Failed to fetch image from S3: ${error.message}`);
     }
   };
 
@@ -386,6 +388,12 @@ const EditQuotation = () => {
   // Items table columns
   const itemColumns = [
     {
+      title: 'Sr. no.',
+      key: 'sr_no',
+      render: (_, record, index) => index + 1,
+      width: 80,
+    },
+    {
       title: 'Product',
       dataIndex: 'product_name',
       key: 'product_name',
@@ -437,7 +445,16 @@ const EditQuotation = () => {
       title: 'Discount',
       dataIndex: 'discount',
       key: 'discount',
-      render: discount => `${discount}%`,
+      render: discount => {
+        if (
+          discount === undefined ||
+          discount === null ||
+          Number(discount) === 0
+        ) {
+          return '-';
+        }
+        return `${discount}%`;
+      },
     },
     {
       title: 'Discount Type',
