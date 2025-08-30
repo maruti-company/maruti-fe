@@ -63,6 +63,7 @@ export const API_ROUTES = {
       UPDATE: '/v1/quotations', // append /:id (also /:id/shared-date)
       DELETE: '/v1/quotations', // append /:id
       GET_BY_ID: '/v1/quotations', // append /:id
+      REGENERATE_PDF: '/v1/quotations', // append /:id/regenerate-pdf
     },
   },
 };
@@ -185,4 +186,17 @@ export const SUCCESS_MESSAGES = {
   QUOTATION_CREATED: 'Quotation created successfully.',
   QUOTATION_UPDATED: 'Quotation updated successfully.',
   QUOTATION_DELETED: 'Quotation deleted successfully.',
+};
+
+// Date formatting utility
+export const formatDate = date => {
+  if (!date) return 'N/A';
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) return 'Invalid Date';
+
+  const day = dateObj.getDate().toString().padStart(2, '0');
+  const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+  const year = dateObj.getFullYear();
+
+  return `${day}/${month}/${year}`;
 };

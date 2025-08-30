@@ -29,6 +29,7 @@ import {
   ERROR_MESSAGES,
   TIMEOUTS,
   getErrorMessage,
+  formatDate,
 } from '../constants';
 import AddReferenceModal from '../components/AddReferenceModal';
 import './Customers.css';
@@ -419,7 +420,7 @@ const Customers = () => {
       title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: date => new Date(date).toLocaleDateString(),
+      render: date => formatDate(date),
     },
     {
       title: 'Actions',

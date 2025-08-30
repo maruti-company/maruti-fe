@@ -403,6 +403,20 @@ const EditQuotation = () => {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
+      width: 200,
+      render: description => (
+        <div
+          style={{
+            wordWrap: 'break-word',
+            wordBreak: 'break-word',
+            whiteSpace: 'pre-wrap',
+            maxWidth: '200px',
+            lineHeight: '1.4',
+          }}
+        >
+          {description || '-'}
+        </div>
+      ),
     },
     {
       title: 'Image',
@@ -558,7 +572,7 @@ const EditQuotation = () => {
                   { required: true, message: 'Please select quotation date' },
                 ]}
               >
-                <DatePicker style={{ width: '100%' }} />
+                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
               </Form.Item>
             </Col>
 

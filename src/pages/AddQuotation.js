@@ -284,6 +284,20 @@ const AddQuotation = () => {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
+      width: 200,
+      render: description => (
+        <div
+          style={{
+            wordWrap: 'break-word',
+            wordBreak: 'break-word',
+            whiteSpace: 'pre-wrap',
+            maxWidth: '200px',
+            lineHeight: '1.4',
+          }}
+        >
+          {description || '-'}
+        </div>
+      ),
     },
     {
       title: 'Image',
@@ -428,6 +442,7 @@ const AddQuotation = () => {
               >
                 <DatePicker
                   style={{ width: '100%' }}
+                  format="DD/MM/YYYY"
                   disabledDate={current =>
                     current && current > dayjs().endOf('day')
                   }

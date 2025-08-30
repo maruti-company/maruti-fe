@@ -30,6 +30,7 @@ import {
   LIMITS,
   TIMEOUTS,
   getErrorMessage,
+  formatDate,
 } from '../constants';
 import './Users.css';
 
@@ -220,7 +221,7 @@ const Users = () => {
       title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: date => new Date(date).toLocaleDateString(),
+      render: date => formatDate(date),
     },
     {
       title: 'Actions',
