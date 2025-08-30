@@ -1,5 +1,25 @@
 .quotations-header {
   margin-bottom: 16px;
+  overflow-x: hidden;
+}
+
+/* Ensure the filter container doesn't overflow */
+.quotations-header .ant-row {
+  margin: 0 !important;
+}
+
+.quotations-header .ant-col {
+  padding: 0 8px;
+}
+
+/* Ensure filters have minimum width */
+.quotations-header .ant-picker,
+.quotations-header .ant-select {
+  min-width: 200px;
+}
+
+.quotations-header .ant-picker-range {
+  min-width: 250px;
 }
 
 /* Table responsiveness */
@@ -12,17 +32,49 @@
 }
 
 /* Responsive adjustments */
+@media (max-width: 1200px) {
+  /* At this breakpoint, give filters more space by stacking them */
+  .quotations-header .ant-row > .ant-col:last-child .ant-row {
+    flex-direction: column;
+  }
+
+  .quotations-header .ant-row > .ant-col:last-child .ant-row > .ant-col {
+    margin-bottom: 12px;
+  }
+
+  /* Ensure filters maintain good width when stacked */
+  .quotations-header .ant-picker,
+  .quotations-header .ant-select {
+    min-width: 300px;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .quotations-header .ant-picker-range {
+    min-width: 350px;
+    width: 100%;
+    max-width: 500px;
+  }
+}
+
 @media (max-width: 768px) {
   .quotations-header .ant-row {
     flex-direction: column;
   }
 
   .quotations-header .ant-col {
-    margin-bottom: 8px;
+    margin-bottom: 16px;
   }
 
-  /* Make date range picker responsive */
-  .ant-picker-range {
+  /* Ensure good filter sizes on mobile */
+  .quotations-header .ant-picker,
+  .quotations-header .ant-select {
+    min-width: 280px;
+    width: 100%;
+  }
+
+  .quotations-header .ant-picker-range {
+    min-width: 300px;
     width: 100% !important;
   }
 
@@ -39,6 +91,18 @@
 @media (max-width: 576px) {
   .quotations-header {
     margin-bottom: 12px;
+  }
+
+  /* Reduce minimum widths for small mobile screens */
+  .quotations-header .ant-picker,
+  .quotations-header .ant-select {
+    min-width: 250px !important;
+    width: 100%;
+  }
+
+  .quotations-header .ant-picker-range {
+    min-width: 270px !important;
+    width: 100% !important;
   }
 
   /* Make date range picker more compact on mobile */
@@ -61,6 +125,18 @@
 }
 
 @media (max-width: 480px) {
+  /* Further reduce minimum widths for very small screens */
+  .quotations-header .ant-picker,
+  .quotations-header .ant-select {
+    min-width: 200px !important;
+    width: 100%;
+  }
+
+  .quotations-header .ant-picker-range {
+    min-width: 220px !important;
+    width: 100% !important;
+  }
+
   /* For very small screens, make the date range picker even more compact */
   .ant-picker-range .ant-picker-input {
     min-width: 0;
@@ -69,5 +145,40 @@
 
   .ant-picker-range .ant-picker-range-separator {
     padding: 0 4px;
+  }
+}
+
+@media (max-width: 360px) {
+  /* For extra small mobile screens (like iPhone SE, older Android) */
+  .quotations-header .ant-col {
+    padding: 0 4px !important;
+  }
+
+  .quotations-header .ant-picker,
+  .quotations-header .ant-select {
+    min-width: 180px !important;
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .quotations-header .ant-picker-range {
+    min-width: 200px !important;
+    width: 100% !important;
+    font-size: 14px;
+  }
+
+  /* Make inputs more compact */
+  .ant-select-selector {
+    padding: 4px 8px !important;
+  }
+
+  .ant-picker {
+    padding: 4px 8px !important;
+  }
+
+  /* Reduce gutter spacing */
+  .quotations-header .ant-row {
+    margin-left: -4px !important;
+    margin-right: -4px !important;
   }
 }

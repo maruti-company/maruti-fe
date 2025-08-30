@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import dayjs from 'dayjs';
 import {
   Card,
   Table,
@@ -29,6 +30,7 @@ import {
   PAGINATION,
   USER_ROLES,
   TIMEOUTS,
+  formatDate,
 } from '../constants';
 import './Quotations.css';
 
@@ -454,7 +456,7 @@ const Quotations = () => {
       title: 'Quotation Date',
       dataIndex: 'quotation_date',
       key: 'quotation_date',
-      render: date => new Date(date).toLocaleDateString(),
+      render: date => formatDate(date),
     },
     {
       title: 'Customer',
@@ -478,7 +480,7 @@ const Quotations = () => {
       title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: date => new Date(date).toLocaleDateString(),
+      render: date => formatDate(date),
     },
     {
       title: 'Actions',
@@ -545,27 +547,32 @@ const Quotations = () => {
       <Card>
         <div className="quotations-header">
           <Row justify="space-between" align="middle" gutter={[16, 16]}>
-            <Col xs={24} sm={24} md={12} lg={8}>
+            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => navigate('/dashboard/quotations/add')}
                 size="large"
+                style={{ width: '100%' }}
               >
                 Add Quotation
               </Button>
             </Col>
-            <Col xs={24} sm={24} md={12} lg={16}>
+            <Col xs={24} sm={24} md={24} lg={18} xl={18}>
               <Row gutter={[16, 16]} justify="end">
-                <Col xs={24} sm={12} md={12} lg={6}>
+                <Col xs={24} sm={24} md={24} lg={8} xl={8}>
                   <RangePicker
                     placeholder={['Start Date', 'End Date']}
                     value={dateRange}
                     onChange={handleDateRangeChange}
+                    format="DD-MM-YYYY"
+                    disabledDate={current =>
+                      current && current.isAfter(dayjs(), 'day')
+                    }
                     style={{ width: '100%' }}
                   />
                 </Col>
-                <Col xs={24} sm={12} md={12} lg={6}>
+                <Col xs={24} sm={24} md={24} lg={8} xl={8}>
                   <Select
                     placeholder="Search or select customer"
                     value={selectedCustomer}
@@ -590,7 +597,7 @@ const Quotations = () => {
                     ))}
                   </Select>
                 </Col>
-                <Col xs={24} sm={12} md={12} lg={6}>
+                <Col xs={24} sm={24} md={24} lg={8} xl={8}>
                   <Select
                     placeholder="Search or select reference"
                     value={selectedReference}
