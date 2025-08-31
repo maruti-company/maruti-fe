@@ -57,7 +57,11 @@ const PublicQuotationPDF = () => {
       if (!success) throw new Error(payload?.message || 'Failed to fetch');
       const rel = payload?.quotation?.pdf_path || payload?.pdf_path || '';
       if (!rel) throw new Error('PDF not available for this quotation');
-      const full = rel.startsWith('http') ? rel : `${ASSET_BASE_URL}/${rel}`;
+      // Add timestamp to URL to prevent caching of old PDF
+      const timestamp = new Date().getTime();
+      const full = rel.startsWith('http')
+        ? `${rel}?t=${timestamp}`
+        : `${ASSET_BASE_URL}/${rel}?t=${timestamp}`;
       setPdfUrl(full);
     } catch (e) {
       setError(e.message || 'Something went wrong while fetching quotation');
@@ -71,7 +75,11 @@ const PublicQuotationPDF = () => {
     const stateQuotation = location.state?.quotation;
     if (stateQuotation?.pdf_path) {
       const rel = stateQuotation.pdf_path;
-      const full = rel.startsWith('http') ? rel : `${ASSET_BASE_URL}/${rel}`;
+      // Add timestamp to URL to prevent caching of old PDF
+      const timestamp = new Date().getTime();
+      const full = rel.startsWith('http')
+        ? `${rel}?t=${timestamp}`
+        : `${ASSET_BASE_URL}/${rel}?t=${timestamp}`;
       setPdfUrl(full);
       setLoading(false);
       return;
@@ -84,7 +92,7 @@ const PublicQuotationPDF = () => {
       fetchPublic();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, location.state]);
 
   return (
     <div style={{ padding: 24 }}>

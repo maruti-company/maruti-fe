@@ -28,6 +28,7 @@ import {
   ERROR_MESSAGES,
   TIMEOUTS,
   getErrorMessage,
+  formatDate,
 } from '../constants';
 import './References.css';
 
@@ -261,7 +262,7 @@ const References = () => {
       title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: date => new Date(date).toLocaleDateString(),
+      render: date => formatDate(date),
     },
     {
       title: 'Actions',

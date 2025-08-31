@@ -20,7 +20,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { quotationService } from '../services/quotationService';
-import { getErrorMessage, ASSET_BASE_URL } from '../constants';
+import { getErrorMessage, ASSET_BASE_URL, formatDate } from '../constants';
 import './AddQuotation.css';
 import './Quotations.css';
 
@@ -34,6 +34,7 @@ const ViewQuotation = () => {
   // State management
   const [loading, setLoading] = useState(true);
   const [quotation, setQuotation] = useState(null);
+  const [pdfGenerating, setPdfGenerating] = useState(false);
 
   const buildPublicLink = quotationId =>
     `${window.location.origin}/public/quotations/${quotationId}`;
@@ -61,6 +62,47 @@ const ViewQuotation = () => {
     const url = `${base}?text=${text}${phoneParam}`.replace('?&', '?');
     window.open(url, '_blank', 'noopener');
   }, [api, id, quotation]);
+
+  const handleViewPDF = useCallback(async () => {
+    try {
+      setPdfGenerating(true);
+
+      // First regenerate the PDF
+      const regenerateResponse = await quotationService.regeneratePDF(id);
+
+      if (regenerateResponse?.data?.success) {
+        // Get the new PDF path from the regenerate response
+        const newPdfPath =
+          regenerateResponse.data?.data?.pdf_path ||
+          regenerateResponse.data?.pdf_path;
+
+        // Create updated quotation object with new PDF path
+        const updatedQuotation = {
+          ...quotation,
+          pdf_path: newPdfPath,
+        };
+
+        // If regeneration is successful, navigate to the PDF view with updated data
+        navigate(`/public/quotations/${id}`, {
+          state: { quotation: updatedQuotation },
+        });
+      } else {
+        // If regeneration fails, show error
+        api.error({
+          message: 'Error',
+          description: 'Failed to regenerate PDF. Please try again.',
+        });
+      }
+    } catch (error) {
+      console.error('Error regenerating PDF:', error);
+      api.error({
+        message: 'Error',
+        description: getErrorMessage(error),
+      });
+    } finally {
+      setPdfGenerating(false);
+    }
+  }, [api, id, quotation, navigate]);
 
   // Fetch quotation data
   const fetchQuotation = useCallback(async () => {
@@ -107,6 +149,20 @@ const ViewQuotation = () => {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
+      width: 200,
+      render: description => (
+        <div
+          style={{
+            wordWrap: 'break-word',
+            wordBreak: 'break-word',
+            whiteSpace: 'pre-wrap',
+            maxWidth: '200px',
+            lineHeight: '1.4',
+          }}
+        >
+          {description || '-'}
+        </div>
+      ),
     },
     {
       title: 'Image',
@@ -232,13 +288,7 @@ const ViewQuotation = () => {
               >
                 Share on WhatsApp
               </Button>
-              <Button
-                onClick={() =>
-                  navigate(`/public/quotations/${id}`, {
-                    state: { quotation },
-                  })
-                }
-              >
+              <Button loading={pdfGenerating} onClick={handleViewPDF}>
                 View PDF
               </Button>
               <Button
@@ -259,7 +309,7 @@ const ViewQuotation = () => {
           style={{ marginBottom: '32px' }}
         >
           <Descriptions.Item label="Quotation Date">
-            {new Date(quotation.quotation_date).toLocaleDateString()}
+            {formatDate(quotation.quotation_date)}
           </Descriptions.Item>
           <Descriptions.Item label="Customer">
             {quotation.customer?.name || 'N/A'}
@@ -271,7 +321,7 @@ const ViewQuotation = () => {
             {quotation.price_type || 'N/A'}
           </Descriptions.Item>
           <Descriptions.Item label="Created At">
-            {new Date(quotation.createdAt).toLocaleDateString()}
+            {formatDate(quotation.createdAt)}
           </Descriptions.Item>
           <Descriptions.Item label="Remarks" span={2}>
             {quotation.remarks || 'No remarks'}

@@ -38,7 +38,7 @@ const ItemModal = ({
   const [api, contextHolder] = notification.useNotification();
   const [loading, setLoading] = useState(false);
 
-  // Products data with pagination
+  // Products data with pagination and search
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [productsPagination, setProductsPagination] = useState({
@@ -46,7 +46,9 @@ const ItemModal = ({
     currentPage: 1,
     totalProducts: 0,
   });
-  // Locations data with pagination
+  const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
+  // Locations data with pagination and search
   const [locations, setLocations] = useState([]);
   const [locationsLoading, setLocationsLoading] = useState(false);
   const [locationsPagination, setLocationsPagination] = useState({
@@ -54,6 +56,7 @@ const ItemModal = ({
     currentPage: 1,
     totalLocations: 0,
   });
+  const [locationSearchTerm, setLocationSearchTerm] = useState('');
 
   // Units data (not paginated)
   const [units, setUnits] = useState([]);
@@ -83,72 +86,100 @@ const ItemModal = ({
     setPreviewOpen(true);
   };
 
-  // Fetch products with pagination
+  // Fetch products with pagination and search
   const fetchProducts = useCallback(
-    async (page = 1, resetList = false) => {
-      if (!productsPagination.hasMore && !resetList) return;
-
+    async (page = 1, searchTerm = '', resetList = false) => {
       try {
         setProductsLoading(true);
-        const response = await productService.getProducts({
+        const params = {
           page,
           limit: PAGINATION.DEFAULT_LIMIT,
-        });
+        };
+
+        if (searchTerm?.trim()) {
+          params.name = searchTerm.trim();
+        }
+
+        const response = await productService.getProducts(params);
 
         if (response.data.success) {
           const newProducts = response.data.data.products || [];
           const totalProducts = response.data.data.pagination?.total || 0;
+          const hasMore = newProducts.length === PAGINATION.DEFAULT_LIMIT;
 
-          setProducts(prev =>
-            resetList ? newProducts : [...prev, ...newProducts]
-          );
+          setProducts(prev => {
+            if (resetList) {
+              return newProducts;
+            }
+            // Prevent duplicates by filtering out existing products
+            const existingIds = new Set(prev.map(p => p.id));
+            const uniqueNewProducts = newProducts.filter(
+              p => !existingIds.has(p.id)
+            );
+            return [...prev, ...uniqueNewProducts];
+          });
+
           setProductsPagination({
-            hasMore: newProducts.length === PAGINATION.DEFAULT_LIMIT,
+            hasMore,
             currentPage: page,
             totalProducts,
           });
         }
       } catch (error) {
-        // Error fetching products - silently handle
+        console.error('Error fetching products:', error);
       } finally {
         setProductsLoading(false);
       }
     },
-    [productsPagination.hasMore]
+    []
   );
 
-  // Fetch locations with pagination
+  // Fetch locations with pagination and search
   const fetchLocations = useCallback(
-    async (page = 1, resetList = false) => {
-      if (!locationsPagination.hasMore && !resetList) return;
-
+    async (page = 1, searchTerm = '', resetList = false) => {
       try {
         setLocationsLoading(true);
-        const response = await locationService.getLocations({
+        const params = {
           page,
           limit: PAGINATION.DEFAULT_LIMIT,
-        });
+        };
+
+        if (searchTerm?.trim()) {
+          params.name = searchTerm.trim();
+        }
+
+        const response = await locationService.getLocations(params);
 
         if (response.data.success) {
           const newLocations = response.data.data.locations || [];
           const totalLocations = response.data.data.pagination?.total || 0;
+          const hasMore = newLocations.length === PAGINATION.DEFAULT_LIMIT;
 
-          setLocations(prev =>
-            resetList ? newLocations : [...prev, ...newLocations]
-          );
+          setLocations(prev => {
+            if (resetList) {
+              return newLocations;
+            }
+            // Prevent duplicates by filtering out existing locations
+            const existingIds = new Set(prev.map(l => l.id));
+            const uniqueNewLocations = newLocations.filter(
+              l => !existingIds.has(l.id)
+            );
+            return [...prev, ...uniqueNewLocations];
+          });
+
           setLocationsPagination({
-            hasMore: newLocations.length === PAGINATION.DEFAULT_LIMIT,
+            hasMore,
             currentPage: page,
             totalLocations,
           });
         }
       } catch (error) {
-        // Error fetching locations - silently handle
+        console.error('Error fetching locations:', error);
       } finally {
         setLocationsLoading(false);
       }
     },
-    [locationsPagination.hasMore]
+    []
   );
 
   // Fetch units
@@ -164,72 +195,36 @@ const ItemModal = ({
   }, []);
 
   // Load initial products
-  const loadInitialProducts = async () => {
-    try {
+  const loadInitialProducts = useCallback(
+    async (searchTerm = '') => {
       setProducts([]);
       setProductsPagination({
         hasMore: true,
         currentPage: 1,
         totalProducts: 0,
       });
+      setProductSearchTerm(searchTerm);
 
-      setProductsLoading(true);
-      const response = await productService.getProducts({
-        page: 1,
-        limit: PAGINATION.DEFAULT_LIMIT,
-      });
-
-      if (response.data.success) {
-        const newProducts = response.data.data.products || [];
-        const totalProducts = response.data.data.pagination?.total || 0;
-
-        setProducts(newProducts);
-        setProductsPagination({
-          hasMore: newProducts.length === PAGINATION.DEFAULT_LIMIT,
-          currentPage: 1,
-          totalProducts,
-        });
-      }
-      setProductsLoading(false);
-    } catch (error) {
-      // Error loading products - silently handle
-      setProductsLoading(false);
-    }
-  };
+      await fetchProducts(1, searchTerm, true);
+    },
+    [fetchProducts]
+  );
 
   // Load initial locations
-  const loadInitialLocations = async () => {
-    try {
+  const loadInitialLocations = useCallback(
+    async (searchTerm = '') => {
       setLocations([]);
       setLocationsPagination({
         hasMore: true,
         currentPage: 1,
         totalLocations: 0,
       });
+      setLocationSearchTerm(searchTerm);
 
-      setLocationsLoading(true);
-      const response = await locationService.getLocations({
-        page: 1,
-        limit: PAGINATION.DEFAULT_LIMIT,
-      });
-
-      if (response.data.success) {
-        const newLocations = response.data.data.locations || [];
-        const totalLocations = response.data.data.pagination?.total || 0;
-
-        setLocations(newLocations);
-        setLocationsPagination({
-          hasMore: newLocations.length === PAGINATION.DEFAULT_LIMIT,
-          currentPage: 1,
-          totalLocations,
-        });
-      }
-      setLocationsLoading(false);
-    } catch (error) {
-      // Error loading locations - silently handle
-      setLocationsLoading(false);
-    }
-  };
+      await fetchLocations(1, searchTerm, true);
+    },
+    [fetchLocations]
+  );
 
   // Handle product dropdown scroll
   const handleProductDropdownScroll = e => {
@@ -239,9 +234,43 @@ const ItemModal = ({
       productsPagination.hasMore &&
       !productsLoading
     ) {
-      fetchProducts(productsPagination.currentPage + 1);
+      fetchProducts(
+        productsPagination.currentPage + 1,
+        productSearchTerm,
+        false
+      );
     }
   };
+
+  // Handle product search with debouncing
+  const handleProductSearch = useCallback(
+    value => {
+      const searchTerm = value || '';
+      setProductSearchTerm(searchTerm);
+
+      // Clear existing timer
+      if (searchDebounceTimer) {
+        clearTimeout(searchDebounceTimer);
+      }
+
+      // Set new timer for debounced search
+      const newTimer = setTimeout(() => {
+        // Reset products and pagination for new search
+        setProducts([]);
+        setProductsPagination({
+          hasMore: true,
+          currentPage: 1,
+          totalProducts: 0,
+        });
+
+        // Fetch products with search term
+        fetchProducts(1, searchTerm, true);
+      }, 300); // 300ms debounce
+
+      setSearchDebounceTimer(newTimer);
+    },
+    [fetchProducts, searchDebounceTimer]
+  );
 
   // Handle location dropdown scroll
   const handleLocationDropdownScroll = e => {
@@ -251,9 +280,43 @@ const ItemModal = ({
       locationsPagination.hasMore &&
       !locationsLoading
     ) {
-      fetchLocations(locationsPagination.currentPage + 1);
+      fetchLocations(
+        locationsPagination.currentPage + 1,
+        locationSearchTerm,
+        false
+      );
     }
   };
+
+  // Handle location search with debouncing
+  const handleLocationSearch = useCallback(
+    value => {
+      const searchTerm = value || '';
+      setLocationSearchTerm(searchTerm);
+
+      // Clear existing timer
+      if (searchDebounceTimer) {
+        clearTimeout(searchDebounceTimer);
+      }
+
+      // Set new timer for debounced search
+      const newTimer = setTimeout(() => {
+        // Reset locations and pagination for new search
+        setLocations([]);
+        setLocationsPagination({
+          hasMore: true,
+          currentPage: 1,
+          totalLocations: 0,
+        });
+
+        // Fetch locations with search term
+        fetchLocations(1, searchTerm, true);
+      }, 300); // 300ms debounce
+
+      setSearchDebounceTimer(newTimer);
+    },
+    [fetchLocations, searchDebounceTimer]
+  );
 
   // Handle product selection to auto-select unit
   const handleProductChange = value => {
@@ -272,6 +335,17 @@ const ItemModal = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
+
+  // Cleanup debounce timer on unmount or when modal closes
+  useEffect(() => {
+    if (!visible && searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+      setSearchDebounceTimer(null);
+      // Also reset search terms when modal closes
+      setProductSearchTerm('');
+      setLocationSearchTerm('');
+    }
+  }, [visible, searchDebounceTimer]);
 
   // Pre-fill form when editing
   useEffect(() => {
@@ -426,6 +500,31 @@ const ItemModal = ({
   const handleCancel = () => {
     form.resetFields();
     setFileList([]);
+
+    // Reset products search state
+    setProductSearchTerm('');
+    setProducts([]);
+    setProductsPagination({
+      hasMore: true,
+      currentPage: 1,
+      totalProducts: 0,
+    });
+
+    // Reset locations search state
+    setLocationSearchTerm('');
+    setLocations([]);
+    setLocationsPagination({
+      hasMore: true,
+      currentPage: 1,
+      totalLocations: 0,
+    });
+
+    // Clear debounce timer
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+      setSearchDebounceTimer(null);
+    }
+
     onCancel();
   };
 
@@ -454,11 +553,10 @@ const ItemModal = ({
             <Select
               placeholder="Select product"
               showSearch
-              filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
+              filterOption={false}
               loading={productsLoading}
               onChange={handleProductChange}
+              onSearch={handleProductSearch}
               onDropdownVisibleChange={visible => {
                 if (visible && products.length === 0) {
                   loadInitialProducts();
@@ -601,12 +699,9 @@ const ItemModal = ({
                 <Select
                   placeholder="Select location"
                   showSearch
-                  filterOption={(input, option) =>
-                    option.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  }
+                  filterOption={false}
                   loading={locationsLoading}
+                  onSearch={handleLocationSearch}
                   onDropdownVisibleChange={visible => {
                     if (visible && locations.length === 0) {
                       loadInitialLocations();

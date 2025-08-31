@@ -59,4 +59,11 @@ export const quotationService = {
     );
     return response;
   },
+
+  regeneratePDF: async id => {
+    const response = await api.post(
+      `${API_ROUTES.INTERNAL.QUOTATIONS.REGENERATE_PDF}/${id}/regenerate-pdf`
+    );
+    return response;
+  },
 };
