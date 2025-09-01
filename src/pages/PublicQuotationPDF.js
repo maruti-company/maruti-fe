@@ -57,11 +57,7 @@ const PublicQuotationPDF = () => {
       if (!success) throw new Error(payload?.message || 'Failed to fetch');
       const rel = payload?.quotation?.pdf_path || payload?.pdf_path || '';
       if (!rel) throw new Error('PDF not available for this quotation');
-      // Add timestamp to URL to prevent caching of old PDF
-      const timestamp = new Date().getTime();
-      const full = rel.startsWith('http')
-        ? `${rel}?t=${timestamp}`
-        : `${ASSET_BASE_URL}/${rel}?t=${timestamp}`;
+      const full = rel.startsWith('http') ? rel : `${ASSET_BASE_URL}/${rel}`;
       setPdfUrl(full);
     } catch (e) {
       setError(e.message || 'Something went wrong while fetching quotation');
@@ -75,11 +71,7 @@ const PublicQuotationPDF = () => {
     const stateQuotation = location.state?.quotation;
     if (stateQuotation?.pdf_path) {
       const rel = stateQuotation.pdf_path;
-      // Add timestamp to URL to prevent caching of old PDF
-      const timestamp = new Date().getTime();
-      const full = rel.startsWith('http')
-        ? `${rel}?t=${timestamp}`
-        : `${ASSET_BASE_URL}/${rel}?t=${timestamp}`;
+      const full = rel.startsWith('http') ? rel : `${ASSET_BASE_URL}/${rel}`;
       setPdfUrl(full);
       setLoading(false);
       return;
