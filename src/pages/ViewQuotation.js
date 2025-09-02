@@ -17,6 +17,7 @@ import {
   ArrowLeftOutlined,
   EditOutlined,
   WhatsAppOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { quotationService } from '../services/quotationService';
@@ -63,29 +64,39 @@ const ViewQuotation = () => {
     window.open(url, '_blank', 'noopener');
   }, [api, id, quotation]);
 
-  const handleViewPDF = useCallback(async () => {
+  const handleViewPDF = useCallback(() => {
+    // Navigate directly to the PDF view with current quotation data
+    navigate(`/public/quotations/${id}`, {
+      state: { quotation },
+    });
+  }, [id, quotation, navigate]);
+
+  const handleRegeneratePDF = useCallback(async () => {
     try {
       setPdfGenerating(true);
 
-      // First regenerate the PDF
+      // Call regenerate PDF API
       const regenerateResponse = await quotationService.regeneratePDF(id);
 
       if (regenerateResponse?.data?.success) {
-        // Get the new PDF path from the regenerate response
-        const newPdfPath =
-          regenerateResponse.data?.data?.pdf_path ||
-          regenerateResponse.data?.pdf_path;
-
-        // Create updated quotation object with new PDF path
-        const updatedQuotation = {
-          ...quotation,
-          pdf_path: newPdfPath,
-        };
-
-        // If regeneration is successful, navigate to the PDF view with updated data
-        navigate(`/public/quotations/${id}`, {
-          state: { quotation: updatedQuotation },
+        // Show success message
+        api.success({
+          message: 'Success',
+          description: 'PDF has been regenerated successfully.',
         });
+
+        // Update quotation state with new PDF path from the API response
+        const newPdfPath =
+          regenerateResponse?.data?.data?.quotation?.pdf_path ||
+          regenerateResponse?.data?.quotation?.pdf_path ||
+          regenerateResponse?.data?.pdf_path;
+
+        if (newPdfPath && quotation) {
+          setQuotation(prevQuotation => ({
+            ...prevQuotation,
+            pdf_path: newPdfPath,
+          }));
+        }
       } else {
         // If regeneration fails, show error
         api.error({
@@ -102,7 +113,7 @@ const ViewQuotation = () => {
     } finally {
       setPdfGenerating(false);
     }
-  }, [api, id, quotation, navigate]);
+  }, [api, id, quotation]);
 
   // Fetch quotation data
   const fetchQuotation = useCallback(async () => {
@@ -274,31 +285,66 @@ const ViewQuotation = () => {
           justify="space-between"
           align="middle"
           style={{ marginBottom: '24px' }}
+          gutter={[16, 16]}
         >
-          <Col>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Title level={3}>Quotation Details</Title>
           </Col>
-          <Col>
-            <Space>
-              <Button
-                type="primary"
-                icon={<WhatsAppOutlined />}
-                style={{ background: '#25D366', borderColor: '#25D366' }}
-                onClick={handleShareWhatsApp}
-              >
-                Share on WhatsApp
-              </Button>
-              <Button loading={pdfGenerating} onClick={handleViewPDF}>
-                View PDF
-              </Button>
-              <Button
-                type="primary"
-                icon={<EditOutlined />}
-                onClick={() => navigate(`/dashboard/quotations/edit/${id}`)}
-              >
-                Edit Quotation
-              </Button>
-            </Space>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Row
+              gutter={[8, 8]}
+              justify="end"
+              className="quotation-actions-row"
+            >
+              <Col lg={6} xl={6}>
+                <Button
+                  type="primary"
+                  icon={<WhatsAppOutlined />}
+                  style={{
+                    background: '#25D366',
+                    borderColor: '#25D366',
+                    width: '100%',
+                  }}
+                  onClick={handleShareWhatsApp}
+                >
+                  <span className="button-text">Share on WhatsApp</span>
+                </Button>
+              </Col>
+              <Col lg={6} xl={6}>
+                <Button
+                  onClick={handleViewPDF}
+                  style={{
+                    width: '100%',
+                  }}
+                >
+                  <span className="button-text">View PDF</span>
+                </Button>
+              </Col>
+              <Col lg={6} xl={6}>
+                <Button
+                  loading={pdfGenerating}
+                  icon={<ReloadOutlined />}
+                  onClick={handleRegeneratePDF}
+                  style={{
+                    width: '100%',
+                  }}
+                >
+                  <span className="button-text">Regenerate PDF</span>
+                </Button>
+              </Col>
+              <Col lg={6} xl={6}>
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  onClick={() => navigate(`/dashboard/quotations/edit/${id}`)}
+                  style={{
+                    width: '100%',
+                  }}
+                >
+                  <span className="button-text">Edit Quotation</span>
+                </Button>
+              </Col>
+            </Row>
           </Col>
         </Row>
 

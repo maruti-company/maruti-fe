@@ -477,10 +477,10 @@ const Quotations = () => {
       render: priceType => priceType || 'N/A',
     },
     {
-      title: 'Created At',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: date => formatDate(date),
+      title: 'Created By',
+      dataIndex: 'creator',
+      key: 'created_by',
+      render: creator => creator?.user_name || 'N/A',
     },
     {
       title: 'Actions',

@@ -182,3 +182,39 @@
     margin-right: -4px !important;
   }
 }
+
+/* Responsive button styles for ViewQuotation page */
+.quotation-actions-row .ant-btn {
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.2;
+  height: auto;
+  min-height: 40px;
+  padding: 8px 12px;
+}
+
+.quotation-actions-row .button-text {
+  display: inline-block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Desktop and large screens */
+@media (min-width: 1200px) {
+  .quotation-actions-row .ant-btn {
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  .quotation-actions-row .button-text {
+    white-space: nowrap;
+  }
+}
