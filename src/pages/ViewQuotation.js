@@ -85,8 +85,18 @@ const ViewQuotation = () => {
           description: 'PDF has been regenerated successfully.',
         });
 
-        // Optionally refresh the quotation data to get updated pdf_path
-        // You can add a refresh function here if needed
+        // Update quotation state with new PDF path from the API response
+        const newPdfPath =
+          regenerateResponse?.data?.data?.quotation?.pdf_path ||
+          regenerateResponse?.data?.quotation?.pdf_path ||
+          regenerateResponse?.data?.pdf_path;
+
+        if (newPdfPath && quotation) {
+          setQuotation(prevQuotation => ({
+            ...prevQuotation,
+            pdf_path: newPdfPath,
+          }));
+        }
       } else {
         // If regeneration fails, show error
         api.error({
@@ -103,7 +113,7 @@ const ViewQuotation = () => {
     } finally {
       setPdfGenerating(false);
     }
-  }, [api, id, navigate]);
+  }, [api, id, quotation]);
 
   // Fetch quotation data
   const fetchQuotation = useCallback(async () => {
@@ -286,7 +296,7 @@ const ViewQuotation = () => {
               justify="end"
               className="quotation-actions-row"
             >
-              <Col xs={12} sm={12} md={6} lg={6} xl={6}>
+              <Col lg={6} xl={6}>
                 <Button
                   type="primary"
                   icon={<WhatsAppOutlined />}
@@ -300,7 +310,7 @@ const ViewQuotation = () => {
                   <span className="button-text">Share on WhatsApp</span>
                 </Button>
               </Col>
-              <Col xs={12} sm={12} md={6} lg={6} xl={6}>
+              <Col lg={6} xl={6}>
                 <Button
                   onClick={handleViewPDF}
                   style={{
@@ -310,7 +320,7 @@ const ViewQuotation = () => {
                   <span className="button-text">View PDF</span>
                 </Button>
               </Col>
-              <Col xs={12} sm={12} md={6} lg={6} xl={6}>
+              <Col lg={6} xl={6}>
                 <Button
                   loading={pdfGenerating}
                   icon={<ReloadOutlined />}
@@ -322,7 +332,7 @@ const ViewQuotation = () => {
                   <span className="button-text">Regenerate PDF</span>
                 </Button>
               </Col>
-              <Col xs={12} sm={12} md={6} lg={6} xl={6}>
+              <Col lg={6} xl={6}>
                 <Button
                   type="primary"
                   icon={<EditOutlined />}
