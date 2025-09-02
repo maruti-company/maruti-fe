@@ -572,7 +572,13 @@ const EditQuotation = () => {
                   { required: true, message: 'Please select quotation date' },
                 ]}
               >
-                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+                <DatePicker
+                  style={{ width: '100%' }}
+                  format="DD/MM/YYYY"
+                  disabledDate={current =>
+                    current && current.isAfter(dayjs(), 'day')
+                  }
+                />
               </Form.Item>
             </Col>
 
